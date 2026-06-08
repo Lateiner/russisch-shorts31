@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch-Übung: Zuordnungsspiel</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        p.instruction {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+
+        /* Spielbereich Grid */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.3s ease;
+            min-height: 320px;
+        }
+
+        .card.drag-over {
+            border-color: var(--primary-color);
+            background: #edf5ff;
+        }
+
+        /* Visuelle Repräsentation der Pullover via CSS */
+        .sweater-visual {
+            width: 100px;
+            height: 100px;
+            background: #ff7675;
+            border-radius: 10px;
+            position: relative;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Spezifische ID-Designs für die Logik */
+        #img-links { border: 4px dotted #fff; } /* Symbolisiert sichtbare Nähte */
+        #img-verkehrt { transform: scaleX(-1); } /* Symbolisiert verdreht */
+
+        .card-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .drop-zone {
+            width: 100%;
+            min-height: 80px;
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            margin-top: auto;
+            transition: background-color 0.2s;
+        }
+
+        /* Draggable Elemente (Text-Kacheln) */
+        .text-elements {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            min-height: 80px;
+            padding: 15px;
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        .draggable {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: grab;
+            font-weight: 600;
+            user-select: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s, opacity 0.2s;
+            text-align: center;
+            max-width: 100%;
+        }
+
+        .draggable:active {
+            cursor: grabbing;
+        }
+
+        .draggable.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        /* Kontroll-Button */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-check {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-check:hover { background: #357abd; }
+
+        .btn-reset {
+            background: #94a3b8;
+            color: white;
+        }
+
+        .btn-reset:hover { background: #64748b; }
+
+        /* Ergebnis-Validierung Styles */
+        .correct {
+            border-color: var(--success-color) !important;
+            background-color: #ecfdf5 !important;
+        }
+
+        .incorrect {
+            border-color: var(--error-color) !important;
+            background-color: #fef2f2 !important;
+        }
+
+        /* Responsive Anpassungen */
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .container { padding: 15px; }
+            h1 { font-size: 1.5rem; }
+            .draggable { width: 100%; font-size: 0.9rem; padding: 10px; }
+            .card { min-height: 280px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Zuordnungsspiel: Kleidung auf Russisch</h1>
+    <p class="instruction">Ziehe die passenden russischen Sätze per Drag-and-Drop zu den entsprechenden Bildern.</p>
+
+    <!-- Zielzonen (Bilder/Karten) -->
+    <div class="game-grid">
+        <div class="card" data-match="richtig">
+            <div class="sweater-visual" id="img-richtig">👕</div>
+            <div class="card-title">Normal / Richtig herum</div>
+            <div class="drop-zone" data-zone="richtig"></div>
+        </div>
+
+        <div class="card" data-match="links">
+            <div class="sweater-visual" id="img-links">👕</div>
+            <div class="card-title">Auf links (Nähte außen)</div>
+            <div class="drop-zone" data-zone="links"></div>
+        </div>
+
+        <div class="card" data-match="verkehrt">
+            <div class="sweater-visual" id="img-verkehrt">👔</div>
+            <div class="card-title">Verkehrt herum (Rückseite vorn)</div>
+            <div class="drop-zone" data-zone="verkehrt"></div>
+        </div>
+    </div>
+
+    <!-- Startbereich der Text-Kacheln -->
+    <div class="text-elements" id="source-zone">
+        <div class="draggable" draggable="true" id="text-richtig" data-value="richtig">Я надела кофту правильно.</div>
+        <div class="draggable" draggable="true" id="text-links" data-value="links">Я надела кофту наизнанку.</div>
+        <div class="draggable" draggable="true" id="text-verkehrt" data-value="verkehrt">Я надела кофту шиворот-навыворот.</div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="controls">
+        <button class="btn-check" onclick="checkAnswers()">Überprüfen</button>
+        <button class="btn-reset" onclick="resetGame()">Zurücksetzen</button>
+    </div>
+</div>
+
+<script>
+    const draggables = document.querySelectorAll('.draggable');
+    const dropZones = document.querySelectorAll('.drop-zone');
+    const sourceZone = document.getElementById('source-zone');
+
+    // Mische die Kacheln beim Start zufällig
+    function shuffleTiles() {
+        const tiles = Array.from(draggables);
+        tiles.sort(() => Math.random() - 0.5);
+        tiles.forEach(tile => sourceZone.appendChild(tile));
+    }
+    shuffleTiles();
+
+    // Drag and Drop Event-Handling (Maus & Touch/Mobilgeräte)
+    draggables.forEach(draggable => {
+        draggable.addEventListener('dragstart', () => {
+            draggable.classList.add('dragging');
+        });
+
+        draggable.addEventListener('dragend', () => {
+            draggable.classList.remove('dragging');
+        });
+
+        // Touch-Unterstützung für Mobilgeräte (Polyfill-Logik via touchmove)
+        draggable.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touchLocation = e.targetTouches[0];
+            draggable.style.position = 'fixed';
+            draggable.style.left = touchLocation.clientX - 50 + 'px';
+            draggable.style.top = touchLocation.clientY - 20 + 'px';
+            draggable.classList.add('dragging');
+        });
+
+        draggable.addEventListener('touchend', (e) => {
+            draggable.style.position = 'static';
+            draggable.classList.remove('dragging');
+            
+            const changedTouch = e.changedTouches[0];
+            const elemBelow = document.elementFromPoint(changedTouch.clientX, changedTouch.clientY);
+            
+            if (elemBelow) {
+                const zone = elemBelow.closest('.drop-zone') || elemBelow.closest('#source-zone');
+                if (zone) {
+                    zone.appendChild(draggable);
+                }
+            }
+        });
+    });
+
+    dropZones.forEach(zone => {
+        zone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            zone.parentElement.classList.add('drag-over');
+        });
+
+        zone.addEventListener('dragleave', () => {
+            zone.parentElement.classList.remove('drag-over');
+        });
+
+        zone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            zone.parentElement.classList.remove('drag-over');
+            const draggable = document.querySelector('.dragging');
+            
+            // Erlaubt nur ein Element pro Zone, älteres Element geht zurück
+            if (zone.children.length > 0) {
+                sourceZone.appendChild(zone.children[0]);
+            }
+            zone.appendChild(draggable);
+        });
+    });
+
+    // Erlaubt auch das Zurücklegen in die Ausgangszone via Drag
+    sourceZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+    });
+    sourceZone.addEventListener('drop', () => {
+        const draggable = document.querySelector('.dragging');
+        sourceZone.appendChild(draggable);
+    });
+
+    // Auswertung der Antworten
+    function checkAnswers() {
+        dropZones.forEach(zone => {
+            const parentCard = zone.parentElement;
+            const expected = parentCard.getAttribute('data-match');
+            
+            if (zone.children.length === 0) {
+                parentCard.classList.remove('correct', 'incorrect');
+                return; // Leer, nichts zu prüfen
+            }
+
+            const actual = zone.children[0].getAttribute('data-value');
+
+            if (actual === expected) {
+                parentCard.classList.add('correct');
+                parentCard.classList.remove('incorrect');
+            } else {
+                parentCard.classList.add('incorrect');
+                parentCard.classList.remove('correct');
+            }
+        });
+    }
+
+    // Zurücksetzen
+    function resetGame() {
+        dropZones.forEach(zone => {
+            const parentCard = zone.parentElement;
+            parentCard.classList.remove('correct', 'incorrect', 'drag-over');
+            if (zone.children.length > 0) {
+                sourceZone.appendChild(zone.children[0]);
+            }
+        });
+        shuffleTiles();
+    }
+</script>
+
+</body>
+</html>
