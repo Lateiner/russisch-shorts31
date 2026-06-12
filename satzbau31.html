@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch-Übung: Satzbau-Baukasten mit Sofort-Feedback</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --tile-bg: #e2e8f0;
+            --tile-hover: #cbd5e1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.6rem;
+            color: var(--primary-color);
+        }
+
+        .progress-bar {
+            text-align: center;
+            font-weight: bold;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        p.instruction {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        .hint-box {
+            background-color: #f8fafc;
+            border-left: 4px solid var(--primary-color);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+            font-style: italic;
+        }
+
+        /* Arbeitsbereich für den gebauten Satz */
+        .sentence-builder-zone {
+            min-height: 70px;
+            background: #f1f5f9;
+            border: 2px dashed #cbd5e1;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 25px;
+            transition: all 0.2s ease;
+        }
+
+        /* Wort-Kacheln */
+        .tile-zone {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            min-height: 70px;
+            margin-bottom: 30px;
+        }
+
+        .word-tile {
+            background: var(--tile-bg);
+            color: var(--text-color);
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+
+        .word-tile:hover {
+            background: var(--tile-hover);
+            transform: translateY(-2px);
+        }
+
+        .word-tile.placed {
+            background: var(--success-color);
+            color: white;
+            cursor: default;
+        }
+
+        /* Feedback Zustände */
+        .sentence-builder-zone.correct-flash {
+            border-color: var(--success-color);
+            background-color: #ecfdf5;
+        }
+
+        .sentence-builder-zone.incorrect-flash {
+            border-color: var(--error-color);
+            background-color: #fef2f2;
+        }
+
+        /* Steuerung */
+        .controls {
+            display: flex;
+            justify-content: center;
+        }
+
+        .btn-reset {
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #94a3b8;
+            color: white;
+            transition: background 0.2s;
+        }
+
+        .btn-reset:hover {
+            background: #64748b;
+        }
+
+        /* Responsive UI */
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .container { padding: 20px 15px; }
+            h1 { font-size: 1.35rem; }
+            .word-tile { padding: 8px 14px; font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Satzbau-Baukasten (Конструктор предложений)</h1>
+    <div class="progress-bar" id="progress">Satz 1 von 6</div>
+    <p class="instruction">Klicke die Kacheln in der richtigen Reihenfolge an. Du erhältst nach jedem Klick sofort Rückmeldung.</p>
+
+    <div class="hint-box" id="hint">Übersetzung: Ich habe den Pullover auf links angezogen.</div>
+    
+    <!-- Hier landet der gebaute Satz -->
+    <div class="sentence-builder-zone" id="target-zone"></div>
+
+    <!-- Hier liegen die auswählbaren Wörter -->
+    <div class="tile-zone" id="source-zone"></div>
+
+    <div class="controls">
+        <button class="btn-reset" onclick="restartGame()">Neustart</button>
+    </div>
+</div>
+
+<script>
+    const dataSet = [
+        {
+            correct: ["Я", "надела", "кофту", "наизнанку."],
+            hint: "Bedeutung: Ich habe den Pullover auf links angezogen."
+        },
+        {
+            correct: ["Я", "надела", "кофту", "шиворот-навыворот."],
+            hint: "Bedeutung: Ich habe den Pullover verkehrt herum angezogen."
+        },
+        {
+            correct: ["Слова", "наизнанку", "и", "шиворот-навыворот", "—", "синонимы."],
+            hint: "Bedeutung: Die Wörter „наизнанку“ und „шиворот-навыворот“ sind Synonyme."
+        },
+        {
+            correct: ["Я", "могу", "сказать", "эти", "слова."],
+            hint: "Bedeutung: Ich kann diese Wörter sagen."
+        },
+        {
+            correct: ["Я", "расскажу", "вам", "о", "синониме."],
+            hint: "Bedeutung: Ich erzähle euch von einem Synonym."
+        },
+        {
+            correct: ["Напишите", "ответ", "в", "комментариях."],
+            hint: "Bedeutung: Schreibt die Antwort in die Kommentare."
+        }
+    ];
+
+    let currentIndex = 0;
+    let currentPool = [];
+    let currentSelection = [];
+    let lockInput = false;
+
+    const targetZone = document.getElementById('target-zone');
+    const sourceZone = document.getElementById('source-zone');
+    const hintElement = document.getElementById('hint');
+    const progressElement = document.getElementById('progress');
+
+    function initSentence() {
+        if (currentIndex >= dataSet.length) {
+            progressElement.textContent = "Geschafft!";
+            hintElement.textContent = "Hervorragend! Du hast alle 6 Sätze fehlerfrei zusammengebaut.";
+            targetZone.innerHTML = "";
+            sourceZone.innerHTML = "";
+            return;
+        }
+
+        lockInput = false;
+        targetZone.className = "sentence-builder-zone";
+        progressElement.textContent = `Satz ${currentIndex + 1} von 6`;
+        hintElement.textContent = dataSet[currentIndex].hint;
+        targetZone.innerHTML = "";
+        currentSelection = [];
+
+        // Wörter für die Auswahl durchmischen
+        currentPool = [...dataSet[currentIndex].correct].sort(() => Math.random() - 0.5);
+        renderSourceTiles();
+    }
+
+    function renderSourceTiles() {
+        sourceZone.innerHTML = "";
+        currentPool.forEach((word, index) => {
+            if (word !== null) {
+                const tile = document.createElement('div');
+                tile.className = "word-tile";
+                tile.textContent = word;
+                tile.onclick = () => handleWordInput(word, index);
+                sourceZone.appendChild(tile);
+            }
+        });
+    }
+
+    function renderTargetTiles() {
+        targetZone.innerHTML = "";
+        currentSelection.forEach((word) => {
+            const tile = document.createElement('div');
+            tile.className = "word-tile placed";
+            tile.textContent = word;
+            targetZone.appendChild(tile);
+        });
+    }
+
+    function handleWordInput(clickedWord, poolIndex) {
+        if (lockInput) return;
+
+        const correctSentence = dataSet[currentIndex].correct;
+        const expectedWord = correctSentence[currentSelection.length];
+
+        // Direktes Feedback: Ist das geklickte Wort an dieser Stelle richtig?
+        if (clickedWord === expectedWord) {
+            // Richtiges Wort: dauerhaft hinzufügen
+            currentSelection.push(clickedWord);
+            currentPool[poolIndex] = null; // Aus dem Pool entfernen
+            
+            renderTargetTiles();
+            renderSourceTiles();
+
+            // Prüfen, ob der gesamte Satz damit vollständig ist
+            if (currentSelection.length === correctSentence.length) {
+                lockInput = true;
+                targetZone.classList.add('correct-flash');
+                setTimeout(() => {
+                    currentIndex++;
+                    initSentence();
+                }, 1000);
+            }
+        } else {
+            // Falsches Wort: Sofortiges optisches Fehler-Feedback
+            lockInput = true;
+            targetZone.classList.add('incorrect-flash');
+            
+            // Kurz rot aufblinken lassen, Eingabe entsperren
+            setTimeout(() => {
+                targetZone.classList.remove('incorrect-flash');
+                lockInput = false;
+            }, 600);
+        }
+    }
+
+    function restartGame() {
+        currentIndex = 0;
+        initSentence();
+    }
+
+    // Initialer Start beim Laden der Seite
+    initSentence();
+</script>
+
+</body>
+</html>
