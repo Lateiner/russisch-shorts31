@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch-Übung: Lückentext</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --border-color: #cbd5e1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 750px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        p.instruction {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 35px;
+            font-size: 1rem;
+        }
+
+        /* Lückentext Bereich */
+        .cloze-form {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .sentence-row {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid var(--primary-color);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .sentence-text {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #1e293b;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            line-height: 2;
+        }
+
+        /* Styling für das Dropdown */
+        select {
+            padding: 6px 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            background-color: #ffffff;
+            color: var(--text-color);
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+            /* Verhindert extremes Zoomen auf iOS Geräten */
+            font-size: 16px; 
+        }
+
+        select:focus {
+            border-color: var(--primary-color);
+        }
+
+        .translation-hint {
+            font-size: 0.95rem;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        /* Feedback-Klassen */
+        .sentence-row.correct-row {
+            border-left-color: var(--success-color);
+            background-color: #ecfdf5;
+        }
+
+        .sentence-row.incorrect-row {
+            border-left-color: var(--error-color);
+            background-color: #fef2f2;
+        }
+
+        select.correct-select {
+            border-color: var(--success-color);
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        select.incorrect-select {
+            border-color: var(--error-color);
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Kontroll-Buttons */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-check {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-check:hover { background: #357abd; }
+
+        .btn-reset {
+            background: #94a3b8;
+            color: white;
+        }
+
+        .btn-reset:hover { background: #64748b; }
+
+        /* Responsive Optimierungen */
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .container { padding: 15px; }
+            h1 { font-size: 1.5rem; }
+            .sentence-text { font-size: 1.1rem; }
+            select { width: 100%; margin: 5px 0; }
+            .sentence-row { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Lückentext: Die richtige Vokabel wählen</h1>
+    <p class="instruction">Wähle für jeden Satz das logisch und grammatikalisch passende russische Wort aus dem Menü aus.</p>
+
+    <div class="cloze-form">
+        <!-- Satz 1 -->
+        <div class="sentence-row" id="row-1">
+            <div class="sentence-text">
+                <span>Я надела кофту</span>
+                <select id="gap-1" data-answer="наизнанку">
+                    <option value="">-- wählen --</option>
+                    <option value="прямо">прямо</option>
+                    <option value="наизнанку">наизнанку</option>
+                    <option value="наоборот">наоборот</option>
+                </select>
+                <span>.</span>
+            </div>
+            <div class="translation-hint">Bedeutung: Ich habe den Pullover auf links angezogen (Innenseite nach außen).</div>
+        </div>
+
+        <!-- Satz 2 -->
+        <div class="sentence-row" id="row-2">
+            <div class="sentence-text">
+                <span>Я надела кофту</span>
+                <select id="gap-2" data-answer="шиворот-навыворот">
+                    <option value="">-- wählen --</option>
+                    <option value="шиворот-навыворот">шиворот-навыворот</option>
+                    <option value="налево">налево</option>
+                    <option value="правильно">правильно</option>
+                </select>
+                <span>.</span>
+            </div>
+            <div class="translation-hint">Bedeutung: Ich habe den Pullover verkehrt herum angezogen (z. B. Rückseite nach vorn).</div>
+        </div>
+
+        <!-- Satz 3 -->
+        <div class="sentence-row" id="row-3">
+            <div class="sentence-text">
+                <span>Слова «наизнанку» и «шиворот-навыворот» — это</span>
+                <select id="gap-3" data-answer="синонимы">
+                    <option value="">-- wählen --</option>
+                    <option value="антонимы">антонимы</option>
+                    <option value="глаголы">глаголы</option>
+                    <option value="синонимы">синонимы</option>
+                </select>
+                <span>.</span>
+            </div>
+            <div class="translation-hint">Bedeutung: Die Wörter „наизнанку“ und „шиворот-навыворот“ sind Synonyme.</div>
+        </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="controls">
+        <button class="btn-check" onclick="checkLückentext()">Überprüfen</button>
+        <button class="btn-reset" onclick="resetLückentext()">Zurücksetzen</button>
+    </div>
+</div>
+
+<script>
+    function checkLückentext() {
+        const totalGaps = 3;
+        
+        for (let i = 1; i <= totalGaps; i++) {
+            const selectElement = document.getElementById(`gap-${i}`);
+            const rowElement = document.getElementById(`row-${i}`);
+            const selectedValue = selectElement.value;
+            const correctAnswer = selectElement.getAttribute('data-answer');
+
+            // Zurücksetzen alter Validierungen
+            rowElement.classList.remove('correct-row', 'incorrect-row');
+            selectElement.classList.remove('correct-select', 'incorrect-select');
+
+            if (selectedValue === "") {
+                // Wenn nichts ausgewählt wurde, wird es als falsch gewertet
+                rowElement.classList.add('incorrect-row');
+                selectElement.classList.add('incorrect-select');
+            } else if (selectedValue === correctAnswer) {
+                rowElement.classList.add('correct-row');
+                selectElement.classList.add('correct-select');
+            } else {
+                rowElement.classList.add('incorrect-row');
+                selectElement.classList.add('incorrect-select');
+            }
+        }
+    }
+
+    function resetLückentext() {
+        const totalGaps = 3;
+        
+        for (let i = 1; i <= totalGaps; i++) {
+            const selectElement = document.getElementById(`gap-${i}`);
+            const rowElement = document.getElementById(`row-${i}`);
+            
+            selectElement.value = "";
+            rowElement.classList.remove('correct-row', 'incorrect-row');
+            selectElement.classList.remove('correct-select', 'incorrect-select');
+        }
+    }
+</script>
+
+</body>
+</html>
