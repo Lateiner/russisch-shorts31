@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch-Übung: Richtig oder Falsch?</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 750px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        p.instruction {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 35px;
+            font-size: 1rem;
+        }
+
+        /* Fragen-Liste */
+        .quiz-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        .quiz-item {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .statement-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        /* Button-Gruppe für Richtig/Falsch */
+        .binary-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .option-btn {
+            flex: 1;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+        }
+
+        /* Zustand: Ausgewählt */
+        .option-btn.selected-true {
+            background: #dbeafe;
+            border-color: var(--primary-color);
+            color: #1e40af;
+        }
+
+        .option-btn.selected-false {
+            background: #ffedd5;
+            border-color: #f97316;
+            color: #9a3412;
+        }
+
+        /* Feedback-Zustände nach der Überprüfung */
+        .quiz-item.correct-answer {
+            border-color: var(--success-color);
+            background-color: #ecfdf5;
+        }
+
+        .quiz-item.incorrect-answer {
+            border-color: var(--error-color);
+            background-color: #fef2f2;
+        }
+
+        /* Kontroll-Buttons unten */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .main-btn {
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: white;
+        }
+
+        .btn-check { background: var(--primary-color); }
+        .btn-check:hover { background: #357abd; }
+
+        .btn-reset { background: #94a3b8; }
+        .btn-reset:hover { background: #64748b; }
+
+        /* Responsive Anpassungen */
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .container { padding: 15px; }
+            h1 { font-size: 1.5rem; }
+            .statement-text { font-size: 1rem; }
+            .binary-options { flex-direction: column; }
+            .quiz-item { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Richtig oder Falsch? (Правда или ложь?)</h1>
+    <p class="instruction">Bewerte die folgenden Aussagen basierend auf den gelernten Regeln aus der Anleitung.</p>
+
+    <div class="quiz-list">
+        <!-- Behauptung 1 -->
+        <div class="quiz-item" id="item-1" data-correct="false">
+            <div class="statement-text">
+                1. Das Wort <strong>наизнанку</strong> bedeutet, dass das Kleidungsstück mit der Rückseite nach vorne getragen wird.
+            </div>
+            <div class="binary-options">
+                <button class="option-btn" onclick="selectOption(1, 'true')">Richtig</button>
+                <button class="option-btn" onclick="selectOption(1, 'false')">Falsch</button>
+            </div>
+        </div>
+
+        <!-- Behauptung 2 -->
+        <div class="quiz-item" id="item-2" data-correct="true">
+            <div class="statement-text">
+                2. Im Kontext von Kleidung können die Begriffe <strong>наизнанку</strong> und <strong>шиворот-навыворот</strong> als Synonyme verwendet werden.
+            </div>
+            <div class="binary-options">
+                <button class="option-btn" onclick="selectOption(2, 'true')">Richtig</button>
+                <button class="option-btn" onclick="selectOption(2, 'false')">Falsch</button>
+            </div>
+        </div>
+
+        <!-- Behauptung 3 -->
+        <div class="quiz-item" id="item-3" data-correct="true">
+            <div class="statement-text">
+                3. Der Ausdruck <strong>шиворот-навыворот</strong> ist allgemeiner gefasst und kann beispielsweise auch bedeuten, dass ein Pullover von hinten nach vorne angezogen wurde.
+            </div>
+            <div class="binary-options">
+                <button class="option-btn" onclick="selectOption(3, 'true')">Richtig</button>
+                <button class="option-btn" onclick="selectOption(3, 'false')">Falsch</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="controls">
+        <button class="main-btn btn-check" onclick="checkBinaryQuiz()">Überprüfen</button>
+        <button class="main-btn btn-reset" onclick="resetBinaryQuiz()">Zurücksetzen</button>
+    </div>
+</div>
+
+<script>
+    // Speichert die Auswahl der Schüler (z.B. {1: 'true', 2: 'false'})
+    let userAnswers = {};
+
+    function selectOption(itemId, value) {
+        // Antwort speichern
+        userAnswers[itemId] = value;
+
+        // Buttons der aktuellen Frage selektieren
+        const item = document.getElementById(`item-${itemId}`);
+        const buttons = item.querySelectorAll('.option-btn');
+
+        // Styles zurücksetzen
+        buttons.forEach(btn => btn.classList.remove('selected-true', 'selected-false'));
+
+        // Aktiven Button stylen
+        const clickedIndex = value === 'true' ? 0 : 1;
+        if (value === 'true') {
+            buttons[clickedIndex].classList.add('selected-true');
+        } else {
+            buttons[clickedIndex].classList.add('selected-false');
+        }
+    }
+
+    function checkBinaryQuiz() {
+        const totalItems = 3;
+
+        for (let i = 1; i <= totalItems; i++) {
+            const itemElement = document.getElementById(`item-${i}`);
+            const correctAnswer = itemElement.getAttribute('data-correct');
+            const userAnswer = userAnswers[i];
+
+            // Vorherige Auswertungs-Klassen entfernen
+            itemElement.classList.remove('correct-answer', 'incorrect-answer');
+
+            if (!userAnswer) {
+                // Keine Auswahl getroffen -> automatisch als falsch markiert
+                itemElement.classList.add('incorrect-answer');
+            } else if (userAnswer === correctAnswer) {
+                itemElement.classList.add('correct-answer');
+            } else {
+                itemElement.classList.add('incorrect-answer');
+            }
+        }
+    }
+
+    function resetBinaryQuiz() {
+        userAnswers = {};
+        const totalItems = 3;
+
+        for (let i = 1; i <= totalItems; i++) {
+            const itemElement = document.getElementById(`item-${i}`);
+            itemElement.classList.remove('correct-answer', 'incorrect-answer');
+            
+            const buttons = itemElement.querySelectorAll('.option-btn');
+            buttons.forEach(btn => btn.classList.remove('selected-true', 'selected-false'));
+        }
+    }
+</script>
+
+</body>
+</html>
