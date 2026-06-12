@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch-Übung: Satz-Vervollständigung</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --primary-hover: #357abd;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --border-color: #cbd5e1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 5px;
+            font-size: 1.6rem;
+            color: var(--primary-color);
+        }
+
+        .progress {
+            text-align: center;
+            font-weight: bold;
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+
+        /* Visueller Impuls-Bereich */
+        .stimulus-box {
+            background-color: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .emoji-display {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            display: block;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        .context-description {
+            font-size: 0.95rem;
+            color: #64748b;
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+
+        .sentence-gap {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--text-color);
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            display: inline-block;
+        }
+
+        .gap-placeholder {
+            color: var(--primary-color);
+            border-bottom: 3px dashed var(--primary-color);
+            padding: 0 10px;
+        }
+
+        /* Optionen */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .option-btn {
+            background: #ffffff;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary-color);
+            background-color: #f0f7ff;
+        }
+
+        /* Feedback-Zustände */
+        .option-btn.correct {
+            background-color: #ecfdf5;
+            border-color: var(--success-color);
+            color: #065f46;
+        }
+
+        .option-btn.incorrect {
+            background-color: #fef2f2;
+            border-color: var(--error-color);
+            color: #991b1b;
+        }
+
+        .explanation-box {
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+            color: #1e40af;
+            display: none;
+        }
+
+        /* Steuerung */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: white;
+        }
+
+        .btn-next {
+            background: var(--primary-color);
+            margin-left: auto;
+        }
+        .btn-next:hover { background: var(--primary-hover); }
+        
+        .btn-reset { background: #94a3b8; }
+        .btn-reset:hover { background: #64748b; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Responsive Anpassungen */
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            .container { padding: 20px 15px; }
+            h1 { font-size: 1.4rem; }
+            .emoji-display { font-size: 3rem; }
+            .sentence-gap { font-size: 1.1rem; }
+            .option-btn { font-size: 1rem; padding: 12px 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Bildimpuls-Vervollständigung</h1>
+    <div class="progress" id="progress-text">Aufgabe 1 von 3</div>
+
+    <div class="stimulus-box">
+        <span class="emoji-display" id="emoji-icon">🧥🔄</span>
+        <div class="context-description" id="context-desc">Situation auf Deutsch</div>
+        <div class="sentence-gap" id="sentence-prompt">Он надел куртку <span class="gap-placeholder">...</span></div>
+    </div>
+
+    <div class="options-list" id="options-container">
+        <!-- Wird per JS befüllt -->
+    </div>
+
+    <div class="explanation-box" id="explanation-container">
+        <!-- Wird per JS befüllt -->
+    </div>
+
+    <div class="controls">
+        <button class="btn btn-reset" onclick="restartQuiz()">Neustart</button>
+        <button class="btn btn-next" id="next-btn" onclick="nextQuestion()" style="display: none;">Weiter</button>
+    </div>
+</div>
+
+<script>
+    const completionQuizData = [
+        {
+            emoji: "🧥🔄",
+            description: "Ein Junge hat seine Winterjacke komplett verkehrt herum (Reißverschluss und Taschen auf dem Rücken) angezogen.",
+            sentenceStart: "Он надел куртку ",
+            options: ["наизнанку.", "шиворот-навыворот.", "правильно."],
+            correctIndex: 1,
+            completedText: "Он надел куртку шиворот-навыворот.",
+            explanation: "Richtig! Weil die Jacke von vorne nach hinten (verkehrt herum) verdreht ist, passt „шиворот-навыворот“ perfekt."
+        },
+        {
+            emoji: "👕🪡",
+            description: "Bei Annas T-Shirt sieht man außen alle Waschzettel und Innennähte. Sie hat es um die Längsachse verdreht angezogen.",
+            sentenceStart: "Она надела футболку ",
+            options: ["наоборот.", "шиворот-навыворот.", "наизнанку."],
+            correctIndex: 2,
+            completedText: "Она надела футболку наизнанку.",
+            explanation: "Richtig! „наизнанку“ bedeutet konkret „auf links“, sodass das Innere der Kleidung nach außen zeigt."
+        },
+        {
+            emoji: "📚🌀",
+            description: "Der Schreibtisch ist ein absolutes Chaos, die Pläne für den Tag sind komplett durcheinandergeraten. Alles läuft drunter und drüber.",
+            sentenceStart: "Всё пошло ",
+            options: ["шиворот-навыворот.", "наизнанку.", "хорошо."],
+            correctIndex: 0,
+            completedText: "Всё пошло шиворот-навыворот.",
+            explanation: "Richtig! Im übertragenen Sinne („alles geht drunter und drüber / läuft schief“) benutzt man ausschließlich „шиворот-навыворот“."
+        }
+    ];
+
+    let currentIndex = 0;
+    let hasAnswered = false;
+
+    const emojiIcon = document.getElementById('emoji-icon');
+    const contextDesc = document.getElementById('context-desc');
+    const sentencePrompt = document.getElementById('sentence-prompt');
+    const optionsContainer = document.getElementById('options-container');
+    const explanationContainer = document.getElementById('explanation-container');
+    const progressText = document.getElementById('progress-text');
+    const nextBtn = document.getElementById('next-btn');
+
+    function loadQuestion() {
+        if (currentIndex >= completionQuizData.length) {
+            showFinalResults();
+            return;
+        }
+
+        hasAnswered = false;
+        nextBtn.style.display = 'none';
+        explanationContainer.style.display = 'none';
+        progressText.textContent = `Aufgabe ${currentIndex + 1} von ${completionQuizData.length}`;
+        
+        const currentData = completionQuizData[currentIndex];
+        
+        // Anzeige aktualisieren
+        emojiIcon.textContent = currentData.emoji;
+        contextDesc.textContent = currentData.description;
+        sentencePrompt.innerHTML = `${currentData.sentenceStart}<span class="gap-placeholder">...</span>`;
+        
+        // Optionen generieren
+        optionsContainer.innerHTML = "";
+        currentData.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.className = "option-btn";
+            button.textContent = option;
+            button.onclick = () => handleOptionClick(index);
+            optionsContainer.appendChild(button);
+        });
+    }
+
+    function handleOptionClick(selectedIndex) {
+        if (hasAnswered) return;
+        hasAnswered = true;
+
+        const currentData = completionQuizData[currentIndex];
+        const buttons = optionsContainer.querySelectorAll('.option-btn');
+
+        buttons.forEach(btn => btn.disabled = true);
+
+        if (selectedIndex === currentData.correctIndex) {
+            buttons[selectedIndex].classList.add('correct');
+            // Lücke im Satz live mit der richtigen Antwort füllen
+            sentencePrompt.innerHTML = `<strong>${currentData.completedText}</strong>`;
+        } else {
+            buttons[selectedIndex].classList.add('incorrect');
+            buttons[currentData.correctIndex].classList.add('correct');
+            sentencePrompt.innerHTML = `${currentData.sentenceStart}<span class="gap-placeholder" style="color:var(--error-color); border-color:var(--error-color);">${currentData.options[selectedIndex]}</span>`;
+        }
+
+        // Erklärung & Weiter-Button einblenden
+        explanationContainer.textContent = currentData.explanation;
+        explanationContainer.style.display = 'block';
+        nextBtn.style.display = 'block';
+    }
+
+    function nextQuestion() {
+        currentIndex++;
+        loadQuestion();
+    }
+
+    function showFinalResults() {
+        progressText.textContent = "Geschafft!";
+        emojiIcon.textContent = "🎉";
+        contextDesc.textContent = "Hervorragend!";
+        sentencePrompt.textContent = "Du hast alle visuellen Situationen blitzschnell erfasst und die Sätze richtig ergänzt.";
+        optionsContainer.innerHTML = "";
+        explanationContainer.style.display = 'none';
+        nextBtn.style.display = 'none';
+    }
+
+    function restartQuiz() {
+        currentIndex = 0;
+        loadQuestion();
+    }
+
+    // Spielstart
+    loadQuestion();
+</script>
+
+</body>
+</html>
