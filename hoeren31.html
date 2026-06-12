@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch-Übung: Hörverständnis (5 Sätze)</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --primary-hover: #357abd;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --border-color: #cbd5e1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 5px;
+            font-size: 1.6rem;
+            color: var(--primary-color);
+        }
+
+        .progress {
+            text-align: center;
+            font-weight: bold;
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+
+        /* Audio-Bereich */
+        .audio-box {
+            background-color: #f8fafc;
+            border: 2px dashed var(--primary-color);
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .audio-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .audio-btn:hover {
+            background-color: var(--primary-hover);
+            transform: scale(1.05);
+        }
+
+        .audio-btn:active {
+            transform: scale(0.95);
+        }
+
+        .audio-hint {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* Optionen */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .option-btn {
+            background: #ffffff;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-color);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary-color);
+            background-color: #f0f7ff;
+        }
+
+        /* Feedback-Zustände */
+        .option-btn.correct {
+            background-color: #ecfdf5;
+            border-color: var(--success-color);
+            color: #065f46;
+        }
+
+        .option-btn.incorrect {
+            background-color: #fef2f2;
+            border-color: var(--error-color);
+            color: #991b1b;
+        }
+
+        /* Steuerung */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: white;
+        }
+
+        .btn-next {
+            background: var(--primary-color);
+            margin-left: auto;
+        }
+        .btn-next:hover { background: var(--primary-hover); }
+        
+        .btn-reset { background: #94a3b8; }
+        .btn-reset:hover { background: #64748b; }
+
+        /* Responsive Anpassungen */
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            .container { padding: 20px 15px; }
+            h1 { font-size: 1.4rem; }
+            .audio-box { padding: 20px 10px; }
+            .audio-btn { width: 60px; height: 60px; font-size: 1.5rem; }
+            .option-btn { font-size: 0.95rem; padding: 12px 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Hörverständnis (Аудирование)</h1>
+    <div class="progress" id="progress-text">Frage 1 von 5</div>
+
+    <div class="audio-box">
+        <button class="audio-btn" onclick="playAudio()" title="Satz anhören">🔊</button>
+        <div class="audio-hint" id="audio-status">Klicke auf das Lautsprechersymbol, um den Satz zu hören.</div>
+    </div>
+
+    <div class="options-list" id="options-container">
+        <!-- Wird per JS befüllt -->
+    </div>
+
+    <div class="controls">
+        <button class="btn btn-reset" onclick="restartQuiz()">Neustart</button>
+        <button class="btn btn-next" id="next-btn" onclick="nextQuestion()" style="display: none;">Weiter</button>
+    </div>
+</div>
+
+<script>
+    const audioQuizData = [
+        {
+            russianText: "Я надела кофту наизнанку.",
+            options: [
+                "Ich habe den Pullover verkehrt herum angezogen.",
+                "Ich habe den Pullover auf links angezogen (Innenseite außen).",
+                "Ich habe den Pullover richtig herum angezogen.",
+                "Ich habe den Pullover eilig ausgezogen."
+            ],
+            correctIndex: 1
+        },
+        {
+            russianText: "Я надела кофту шиворот-навыворот.",
+            options: [
+                "Ich habe den Pullover verkehrt herum angezogen (z. B. von hinten nach vorne).",
+                "Ich habe den Pullover ordentlich zusammengelegt.",
+                "Ich habe den Pullover auf links angezogen.",
+                "Ich habe den Pullover verloren."
+            ],
+            correctIndex: 0
+        },
+        {
+            russianText: "Слова наизнанку и шиворот-навыворот — это синонимы.",
+            options: [
+                "Die Wörter „наизнанку“ und „шиворот-навыворот“ bedeuten das Gegenteil.",
+                "Die Wörter „наизнанку“ und „шиворот-навыворот“ sind Verben.",
+                "Die Wörter „наизнанку“ und „шиворот-навыворот“ sind Synonyme.",
+                "Die Wörter „наизнанку“ und „шиворот-навыворот“ stammen aus dem Deutschen."
+            ],
+            correctIndex: 2
+        },
+        {
+            russianText: "Я могу сказать я надела кофту наизнанку.",
+            options: [
+                "Ich kann sagen: Ich habe meinen Pullover auf links angezogen.",
+                "Ich will nicht sagen, dass ich meinen Pullover verkehrt herum trage.",
+                "Ich werde morgen einen neuen Pullover anziehen.",
+                "Ich muss den Pullover sofort auf links anziehen."
+            ],
+            correctIndex: 0
+        },
+        {
+            russianText: "Сегодня я расскажу вам о синониме этого слова.",
+            options: [
+                "Heute werde ich euch das Gegenteil dieses Wortes beibringen.",
+                "Heute erzähle ich euch von einem Synonym für dieses Wort.",
+                "Gestern habe ich ein neues Wort für Kleidung gelernt.",
+                "Morgen sprechen wir über die Grammatik dieser Wörter."
+            ],
+            correctIndex: 1
+        }
+    ];
+
+    let currentIndex = 0;
+    let hasAnswered = false;
+    let ruVoice = null;
+
+    const optionsContainer = document.getElementById('options-container');
+    const progressText = document.getElementById('progress-text');
+    const nextBtn = document.getElementById('next-btn');
+    const audioStatus = document.getElementById('audio-status');
+
+    function loadVoices() {
+        if (!('speechSynthesis' in window)) return;
+        
+        const voices = window.speechSynthesis.getVoices();
+        const ruVoices = voices.filter(voice => voice.lang.startsWith('ru'));
+        
+        if (ruVoices.length > 0) {
+            // Bevorzuge männliche Stimmen oder Microsoft-Standardstimmen
+            const maleVoice = ruVoices.find(voice => 
+                voice.name.toLowerCase().includes('pavel') || 
+                voice.name.toLowerCase().includes('male') ||
+                voice.name.toLowerCase().includes('dmitry')
+            );
+            ruVoice = maleVoice || ruVoices[0];
+        }
+    }
+
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+        loadVoices();
+    }
+
+    function playAudio() {
+        if (!('speechSynthesis' in window)) {
+            alert("Text-to-Speech wird von deinem Browser leider nicht unterstützt.");
+            return;
+        }
+
+        window.speechSynthesis.cancel();
+
+        const currentData = audioQuizData[currentIndex];
+        const utterance = new SpeechSynthesisUtterance(currentData.russianText);
+        utterance.lang = 'ru-RU';
+        
+        if (ruVoice) {
+            utterance.voice = ruVoice;
+        }
+        
+        utterance.rate = 0.85; // Leicht gedrosseltes Tempo für besseres Verständnis
+        utterance.pitch = 1.0; 
+
+        utterance.onstart = () => {
+            audioStatus.textContent = "Spiele Audio ab... Hör genau zu!";
+            audioStatus.style.color = "var(--primary-color)";
+        };
+
+        utterance.onend = () => {
+            audioStatus.textContent = "Audio beendet. Wähle nun die richtige Übersetzung.";
+            audioStatus.style.color = "#64748b";
+        };
+
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function loadQuestion() {
+        if (currentIndex >= audioQuizData.length) {
+            showFinalResults();
+            return;
+        }
+
+        hasAnswered = false;
+        nextBtn.style.display = 'none';
+        audioStatus.textContent = "Klicke auf das Lautsprechersymbol, um den Satz zu hören.";
+        audioStatus.style.color = "#64748b";
+        progressText.textContent = `Frage ${currentIndex + 1} von ${audioQuizData.length}`;
+        
+        const currentData = audioQuizData[currentIndex];
+        
+        optionsContainer.innerHTML = "";
+        currentData.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.className = "option-btn";
+            button.textContent = option;
+            button.onclick = () => handleOptionClick(index);
+            optionsContainer.appendChild(button);
+        });
+
+        // Startet das Audio mit kurzem Delay automatisch
+        setTimeout(playAudio, 400);
+    }
+
+    function handleOptionClick(selectedIndex) {
+        if (hasAnswered) return;
+        hasAnswered = true;
+
+        const currentData = audioQuizData[currentIndex];
+        const buttons = optionsContainer.querySelectorAll('.option-btn');
+
+        buttons.forEach(btn => btn.disabled = true);
+
+        if (selectedIndex === currentData.correctIndex) {
+            buttons[selectedIndex].classList.add('correct');
+        } else {
+            buttons[selectedIndex].classList.add('incorrect');
+            buttons[currentData.correctIndex].classList.add('correct');
+        }
+
+        nextBtn.style.display = 'block';
+    }
+
+    function nextQuestion() {
+        currentIndex++;
+        loadQuestion();
+    }
+
+    function showFinalResults() {
+        progressText.textContent = "Geschafft!";
+        audioStatus.textContent = "Hervorragend! Du hast das Hörverständnis für alle 5 Sätze gemeistert.";
+        document.querySelector('.audio-btn').style.display = 'none';
+        optionsContainer.innerHTML = "<p style='text-align:center; font-weight:600; color:var(--success-color);'>Du hast alle russischen Beispielsätze fehlerfrei verstanden!</p>";
+        nextBtn.style.display = 'none';
+    }
+
+    function restartQuiz() {
+        currentIndex = 0;
+        document.querySelector('.audio-btn').style.display = 'inline-flex';
+        loadQuestion();
+    }
+
+    // Initialer Start
+    loadQuestion();
+</script>
+
+</body>
+</html>
