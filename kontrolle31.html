@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch-Übung: Interaktive Flashcards</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --primary-hover: #357abd;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 550px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 5px;
+            font-size: 1.6rem;
+            color: var(--primary-color);
+        }
+
+        .progress {
+            text-align: center;
+            font-weight: bold;
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+
+        /* 3D Flashcard Container */
+        .flashcard-wrapper {
+            perspective: 1000px;
+            width: 100%;
+            height: 280px;
+            margin-bottom: 30px;
+            cursor: pointer;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+            border-radius: 12px;
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: white;
+        }
+
+        /* Vorderseite */
+        .card-front {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        }
+
+        .card-front .lang-hint {
+            font-size: 0.85rem;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .card-front .phrase {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        /* Rückseite */
+        .card-back {
+            background: #ffffff;
+            transform: rotateY(180deg);
+            border-color: #cbd5e1;
+        }
+
+        .card-back .translation {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+
+        .card-back .gram-note {
+            font-size: 0.9rem;
+            color: #64748b;
+            background: #f1f5f9;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border-left: 4px solid var(--primary-color);
+            width: 100%;
+        }
+
+        .tap-hint {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 15px;
+        }
+
+        /* Feedback-Buttons */
+        .action-zone {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-wrong {
+            background-color: var(--error-color);
+        }
+        .btn-wrong:hover { background-color: #c0392b; transform: translateY(-1px); }
+
+        .btn-right {
+            background-color: var(--success-color);
+        }
+        .btn-right:hover { background-color: #27ae60; transform: translateY(-1px); }
+
+        .btn-reset {
+            background: #94a3b8;
+            margin-top: 20px;
+            width: auto;
+            padding: 10px 25px;
+            font-size: 0.95rem;
+        }
+        .btn-reset:hover { background: #64748b; }
+
+        /* Responsive Optimierungen */
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            .container { padding: 20px 15px; }
+            h1 { font-size: 1.35rem; }
+            .flashcard-wrapper { height: 250px; }
+            .card-front .phrase { font-size: 1.4rem; }
+            .card-back .translation { font-size: 1.15rem; }
+            .card-back .gram-note { font-size: 0.85rem; padding: 6px 10px; }
+            .btn { padding: 12px; font-size: 0.95rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Karteikarten (Карточки)</h1>
+    <div class="progress" id="progress-text">Karte 1 von 6</div>
+
+    <div class="flashcard-wrapper" onclick="flipCard()">
+        <div class="flashcard" id="card-element">
+            <!-- Vorderseite -->
+            <div class="card-face card-front">
+                <span class="lang-hint">Russisch</span>
+                <div class="phrase" id="front-text">наизнанку</div>
+                <span class="tap-hint">💡 Tippen zum Umdrehen</span>
+            </div>
+            <!-- Rückseite -->
+            <div class="card-face card-back">
+                <div class="translation" id="back-text">auf links</div>
+                <div class="gram-note" id="note-text">Wird ausschließlich für das Wenden von Kleidung genutzt.</div>
+                <span class="tap-hint">🔄 Tippen zum Zurückdrehen</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Selbstkontroll-Buttons -->
+    <div class="action-zone" id="buttons-zone">
+        <button class="btn btn-wrong" onclick="handleFeedback(false)">❌ Nicht gewusst</button>
+        <button class="btn btn-right" onclick="handleFeedback(true)"> Heinrich gewusst ✓</button>
+    </div>
+
+    <button class="btn btn-reset" id="reset-btn" onclick="initDeck()" style="display: none;">Neustart</button>
+</div>
+
+<script>
+    const fullDeck = [
+        {
+            front: "наизнанку",
+            back: "auf links (Innenseite außen)",
+            note: "Kontext: Nur für Kleidung, deren Nähte oder Innenseite nach außen zeigen."
+        },
+        {
+            front: "шиворот-навыворот",
+            back: "verkehrt herum / drunter und drüber",
+            note: "Breiterer Begriff: Für Kleidung (vorn/hinten vertauscht) ODER im übertragenen Sinne für Chaos/Pläne."
+        },
+        {
+            front: "Я надела кофту наизнанку.",
+            back: "Ich habe den Pullover auf links angezogen.",
+            note: "Beispielsatz: Zeigt die konkrete Anwendung des Adverbs im Alltag."
+        },
+        {
+            front: "Я надела кофту шиворот-навыворот.",
+            back: "Ich habe den Pullover verkehrt herum angezogen.",
+            note: "Beispielsatz: Das Kleidungsstück wurde z.B. mit der Rückseite nach vorne angezogen."
+        },
+        {
+            front: "синонимы",
+            back: "Synonyme",
+            note: "Grammatik-Fakt: Im Kontext von Kleidung sind beide Ausdrücke synonym zueinander austauschbar."
+        },
+        {
+            front: "Всё пошло шиворот-навыворот.",
+            back: "Alles lief drunter und drüber / ging schief.",
+            note: "Metaphorische Bedeutung: Kann nicht durch 'наизнанку' ersetzt werden."
+        }
+    ];
+
+    let activeDeck = [];
+    let currentCardIndex = 0;
+    const cardElement = document.getElementById('card-element');
+    const frontText = document.getElementById('front-text');
+    const backText = document.getElementById('back-text');
+    const noteText = document.getElementById('note-text');
+    const progressText = document.getElementById('progress-text');
+    const buttonsZone = document.getElementById('buttons-zone');
+    const resetBtn = document.getElementById('reset-btn');
+
+    function initDeck() {
+        // Deck kopieren und mischen
+        activeDeck = [...fullDeck].sort(() => Math.random() - 0.5);
+        currentCardIndex = 0;
+        buttonsZone.style.display = "flex";
+        resetBtn.style.display = "none";
+        
+        loadCard();
+    }
+
+    function loadCard() {
+        if (currentCardIndex >= activeDeck.length) {
+            showFinished();
+            return;
+        }
+
+        // Karte visuell zurücksetzen (Vorderseite zeigen) ennen geladen wird
+        cardElement.classList.remove('flipped');
+        
+        // Timeout sorgt dafür, dass die Textänderung hinter der Drehung verborgen bleibt
+        setTimeout(() => {
+            const currentCard = activeDeck[currentCardIndex];
+            frontText.textContent = currentCard.front;
+            backText.textContent = currentCard.back;
+            noteText.textContent = currentCard.note;
+            
+            progressText.textContent = `Karte ${currentCardIndex + 1} von ${activeDeck.length}`;
+        }, 150);
+    }
+
+    function flipCard() {
+        cardElement.classList.toggle('flipped');
+    }
+
+    function handleFeedback(wasKnown) {
+        if (!wasKnown) {
+            // Wenn nicht gewusst, wird die Karte ans Ende des Decks geschoben
+            const missedCard = activeDeck.splice(currentCardIndex, 1)[0];
+            activeDeck.push(missedCard);
+            // Index bleibt gleich, da das aktuelle Element entfernt wurde
+        } else {
+            // Wenn gewusst, gehen wir einfach zur nächsten Karte über
+            currentCardIndex++;
+        }
+        
+        loadCard();
+    }
+
+    function showFinished() {
+        cardElement.classList.remove('flipped');
+        progressText.textContent = "Fertig!";
+        frontText.innerHTML = "🎉 Großartig!<br><span style='font-size:1.1rem; font-weight:500;'>Du hast alle Karten gelernt und verinnerlicht.</span>";
+        buttonsZone.style.display = "none";
+        resetBtn.style.display = "block";
+    }
+
+    // Erster Start
+    initDeck();
+</script>
+
+</body>
+</html>
