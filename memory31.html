@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch-Übung: Matching Pairs (mit Ausblenden)</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --tile-bg: #ffffff;
+            --tile-border: #cbd5e1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.6rem;
+            color: var(--primary-color);
+        }
+
+        p.instruction {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        /* Responsive Grid für die 12 Karten */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .tile {
+            background: var(--tile-bg);
+            border: 2px solid var(--tile-border);
+            border-radius: 10px;
+            padding: 15px 10px;
+            min-height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            transition: all 0.2s ease, opacity 1.2s ease; /* Übergang für langsames Verschwinden */
+            opacity: 1;
+        }
+
+        .tile:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+        }
+
+        /* Zustand: Ausgewählt */
+        .tile.selected {
+            background-color: #e0f2fe;
+            border-color: var(--primary-color);
+            color: #0369a1;
+        }
+
+        /* Zustand: Richtiges Paar gefunden */
+        .tile.matched {
+            background-color: #ecfdf5;
+            border-color: var(--success-color);
+            color: #047857;
+            cursor: default;
+            pointer-events: none;
+            transform: none;
+        }
+
+        /* Zustand: Wird langsam ausgeblendet */
+        .tile.fade-out {
+            opacity: 0;
+        }
+
+        /* Zustand: Falsches Paar */
+        .tile.mismatched {
+            background-color: #fef2f2;
+            border-color: var(--error-color);
+            color: #b91c1c;
+        }
+
+        /* Steuerung */
+        .controls {
+            display: flex;
+            justify-content: center;
+        }
+
+        .btn-reset {
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #94a3b8;
+            color: white;
+            transition: background 0.2s;
+        }
+
+        .btn-reset:hover {
+            background: #64748b;
+        }
+
+        /* Responsive Anpassungen */
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+            }
+            .tile {
+                font-size: 0.95rem;
+                min-height: 90px;
+                padding: 10px 5px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .tile {
+                font-size: 0.85rem;
+                min-height: 85px;
+            }
+            h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Synonyme verbinden (Найди пары)</h1>
+    <p class="instruction">Klicke nacheinander zwei Kacheln an. Richtige Paare leuchten kurz grün auf und verschwinden dann langsam.</p>
+
+    <div class="grid-container" id="grid"></div>
+
+    <div class="controls">
+        <button class="btn-reset" onclick="initGame()">Neustart</button>
+    </div>
+</div>
+
+<script>
+    const pairsData = [
+        { id: 1, text: "наизнанку", matchId: 1 },
+        { id: 1, text: "auf links (Innenseite außen)", matchId: 1 },
+        
+        { id: 2, text: "шиворот-навыворот", matchId: 2 },
+        { id: 2, text: "verkehrt herum", matchId: 2 },
+        
+        { id: 3, text: "наизнанку [Kleidung]", matchId: 3 },
+        { id: 3, text: "шиворот-навыворот [Kleidung]", matchId: 3 },
+        
+        { id: 4, text: "Я надела кофту наизнанку.", matchId: 4 },
+        { id: 4, text: "Ich habe den Pullover auf links angezogen.", matchId: 4 },
+        
+        { id: 5, text: "Я надела кофту шиворот-навыворот.", matchId: 5 },
+        { id: 5, text: "Ich habe den Pullover verkehrt herum angezogen.", matchId: 5 },
+        
+        { id: 6, text: "синонимы", matchId: 6 },
+        { id: 6, text: "Synonyme", matchId: 6 }
+    ];
+
+    let firstSelected = null;
+    let secondSelected = null;
+    let lockGrid = false;
+
+    const grid = document.getElementById('grid');
+
+    function initGame() {
+        grid.innerHTML = "";
+        firstSelected = null;
+        secondSelected = null;
+        lockGrid = false;
+
+        // Karten zufällig durchmischen
+        const shuffledCards = [...pairsData].sort(() => Math.random() - 0.5);
+
+        shuffledCards.forEach((cardData) => {
+            const tile = document.createElement('div');
+            tile.className = "tile";
+            tile.textContent = cardData.text;
+            tile.setAttribute('data-match', cardData.matchId);
+            tile.onclick = () => handleTileClick(tile);
+            grid.appendChild(tile);
+        });
+    }
+
+    function handleTileClick(tile) {
+        if (lockGrid || tile.classList.contains('matched') || tile === firstSelected) return;
+
+        tile.classList.add('selected');
+
+        if (!firstSelected) {
+            firstSelected = tile;
+        } else {
+            secondSelected = tile;
+            lockGrid = true;
+            checkMatch();
+        }
+    }
+
+    function checkMatch() {
+        const id1 = firstSelected.getAttribute('data-match');
+        const id2 = secondSelected.getAttribute('data-match');
+
+        if (id1 === id2) {
+            // Referenzen für asynchrone Animationen sichern
+            const tile1 = firstSelected;
+            const tile2 = secondSelected;
+
+            // Schritt 1: Sofort als richtig (grün) markieren
+            setTimeout(() => {
+                tile1.className = "tile matched";
+                tile2.className = "tile matched";
+            }, 200);
+
+            // Schritt 2: Nach kurzer Zeit das langsame Ausblenden (CSS opacity) starten
+            setTimeout(() => {
+                tile1.classList.add('fade-out');
+                tile2.classList.add('fade-out');
+            }, 600);
+
+            // Schritt 3: Nach dem Ausblenden die Elemente unsichtbar schalten, um Klicks komplett zu sperren
+            setTimeout(() => {
+                tile1.style.visibility = 'hidden';
+                tile2.style.visibility = 'hidden';
+            }, 1800); // 600ms Delay + 1200ms CSS Transition-Dauer
+
+            setTimeout(resetTurn, 300);
+        } else {
+            // Kein Match: Rot blinken lassen und zurücksetzen
+            setTimeout(() => {
+                firstSelected.classList.add('mismatched');
+                secondSelected.classList.add('mismatched');
+            }, 200);
+
+            setTimeout(() => {
+                firstSelected.className = "tile";
+                secondSelected.className = "tile";
+                resetTurn();
+            }, 1000);
+        }
+    }
+
+    function resetTurn() {
+        firstSelected = null;
+        secondSelected = null;
+        lockGrid = false;
+    }
+
+    initGame();
+</script>
+
+</body>
+</html>
